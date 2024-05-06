@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:takatuf/auth/signin.dart';
 import 'package:takatuf/main.dart';
+import 'package:takatuf/screens/edit_account.dart';
+import 'package:takatuf/screens/favo.dart';
 import 'package:takatuf/screens/notices.dart';
- import '../theme/colors.dart';
+import '../theme/colors.dart';
 import '../theme/fonts.dart';
 
 class Settings extends StatefulWidget {
@@ -139,51 +142,60 @@ class _SettingsState extends State<Settings> {
                     ), (route) => false);
                   }
                 },
-                child: Container(
-                  height: 40,
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 15,
-                          ),
-                          icon[index],
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            '${title[index]}',
-                            style: index == 8
-                                ? AppFonts.Red_16
-                                : AppFonts.DarkBLue_16,
-                          ),
-                        ],
-                      ),
-                      if (index != 8) ...[
-                        IconButton(
-                          onPressed: () {
-                            if (index == 1) {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) {
-                                  return Notices();
-                                },
-                              ));
-                            }
-                          },
-                          icon: Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: 17,
-                          ),
+                child: InkWell(
+                  onTap: () {},
+                  child: Container(
+                    height: 40,
+                    margin: EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 15,
+                            ),
+                            icon[index],
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              '${title[index]}',
+                              style: index == 8
+                                  ? AppFonts.Red_16
+                                  : AppFonts.DarkBLue_16,
+                            ),
+                          ],
                         ),
-                      ]
-                    ],
+                        if (index != 8) ...[
+                          IconButton(
+                            onPressed: () {
+                              if (index == 1) {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) {
+                                    return Notices();
+                                  },
+                                ));
+                              }
+                              if (index == 0) {
+                                Get.to(EditAccount());
+                              }
+                              if (index == 2) {
+                                Get.to(Favo());
+                              }
+                            },
+                            icon: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              size: 17,
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
                   ),
                 ),
               );

@@ -1,33 +1,36 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:takatuf/components/textform2.dart';
 import 'package:takatuf/main.dart';
-
 import '../theme/colors.dart';
 import '../theme/fonts.dart';
 
 //done 1 MAY 2024 nour
-class Profile extends StatefulWidget {
-  const Profile({super.key});
+class EditAccount extends StatefulWidget {
+  const EditAccount({super.key});
 
   @override
-  State<Profile> createState() => _ProfileState();
+  State<EditAccount> createState() => _EditAccountState();
 }
 
-class _ProfileState extends State<Profile> {
+class _EditAccountState extends State<EditAccount> {
+  final TextEditingController name = TextEditingController();
   final TextEditingController phonecontroller = TextEditingController();
-  var profileImageUrl;
+  final TextEditingController city = TextEditingController();
+
+  var EditAccountImageUrl;
   getImage() async {
     print('${prefs!.getString('id')}');
-    profileImageUrl = await FirebaseFirestore.instance
+    EditAccountImageUrl = await FirebaseFirestore.instance
         .collection('users')
         .doc('${prefs!.getString('id')}')
         .get();
-    print(profileImageUrl.data()['imageurl']);
+    print(EditAccountImageUrl.data()['imageurl']);
     setState(() {});
   }
 
@@ -39,14 +42,40 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    List<TextEditingController> controllers = [name, phonecontroller, city];
+
     List<String> title = ['اسم المستخدم', 'الجوال', 'المدينة', ' '];
     List<String> data = [
       prefs!.getString('name').toString(),
       prefs!.getString('phone').toString(),
       prefs!.getString('city') ?? "لم يتم اختيارها",
-      'حذف الحساب'
+      "حذف الحساب"
     ];
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        onPressed: () async {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(prefs!.getString('id'))
+              .update({
+            "name": "${name.text}",
+            "phone": "${phonecontroller.text}",
+            "city": "${city.text}",
+          }).then((value) {
+            prefs!.setString('name', name.text);
+            prefs!.setString('phone', phonecontroller.text);
+            prefs!.setString('city', city.text);
+            Navigator.of(context).pop();
+          }).onError((error, stackTrace) {
+            print(error);
+          });
+        },
+        child: Text(
+          'تعديل',
+          style: AppFonts.DarkBLue_16,
+        ),
+      ),
       appBar: AppBar(
         surfaceTintColor: Colors.white,
         backgroundColor: Colors.transparent,
@@ -108,8 +137,8 @@ class _ProfileState extends State<Profile> {
                           border:
                               Border.all(color: AppColors.DarkBlue, width: 2),
                         ),
-                        child: profileImageUrl == null ||
-                                profileImageUrl.data()['imageurl'] == null
+                        child: EditAccountImageUrl == null ||
+                                EditAccountImageUrl.data()['imageurl'] == null
                             ? const CircleAvatar(
                                 backgroundColor: Colors.grey,
                                 backgroundImage:
@@ -119,7 +148,7 @@ class _ProfileState extends State<Profile> {
                             : CircleAvatar(
                                 backgroundColor: Colors.grey,
                                 backgroundImage: NetworkImage(
-                                    profileImageUrl.data()['imageurl']),
+                                    EditAccountImageUrl.data()['imageurl']),
                                 radius: 70,
                               ),
                       ),
@@ -151,11 +180,11 @@ class _ProfileState extends State<Profile> {
                                         ),
                                       );
                                     });
-                                if (profileImageUrl.data()['imageurl'] !=
+                                if (EditAccountImageUrl.data()['imageurl'] !=
                                     null) {
                                   await FirebaseStorage.instance
-                                      .refFromURL(
-                                          profileImageUrl.data()['imageurl'])
+                                      .refFromURL(EditAccountImageUrl.data()[
+                                          'imageurl'])
                                       .delete();
                                 }
                                 file = File(image.path);
@@ -211,16 +240,22 @@ class _ProfileState extends State<Profile> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Textform(
-                              readonly: true,
-                              text: data[index],
-                              style: index == 3
-                                  ? AppFonts.Red_14
-                                  : AppFonts.DarkBLue_14,
-                              textInputType: TextInputType.text,
-                              obscure: index == 1 ? true : false,
-                              height: 40,
-                              width: double.infinity,
+                            InkWell(
+                              onTap: () async {},
+                              child: Textform(
+                                readonly: index == 3 ? true : false,
+                                controller: index != 3
+                                    ? controllers[index]
+                                    : TextEditingController(),
+                                text: data[index],
+                                style: index == 3
+                                    ? AppFonts.Red_14
+                                    : AppFonts.DarkBLue_12,
+                                textInputType: TextInputType.text,
+                                obscure: index == 1 ? true : false,
+                                height: 50,
+                                width: double.infinity,
+                              ),
                             ),
                           ],
                         ),

@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:takatuf/main.dart';
 import 'package:takatuf/screens/show_map.dart';
 import 'package:takatuf/screens/show_product.dart';
- 
+
 import '../theme/colors.dart';
 import '../theme/fonts.dart';
 
@@ -168,53 +169,89 @@ class _HomeState extends State<Home> {
                                     physics: NeverScrollableScrollPhysics(),
                                     itemCount: snapshot.data.docs.length,
                                     itemBuilder: (context, index) {
-                                      return InkWell(
-                                        onTap: () {
-                                          print(
-                                              snapshot.data.docs[index].data());
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) {
-                                                return ShowProduct(
-                                                  data: snapshot
-                                                      .data.docs[index]
-                                                      .data(),
-                                                );
+                                      return Stack(
+                                        children: [
+                                          InkWell(
+                                              onTap: () {
+                                                if ((prefs!
+                                                        .getStringList("fav")
+                                                        ?.contains(snapshot
+                                                            .data
+                                                            .docs[index]
+                                                            .reference
+                                                            .id) ??
+                                                    false)) {
+                                                    var list = prefs!
+                                                          .getStringList('fav') ??
+                                                      [];
+                                                  list.remove(
+                                                      '${snapshot.data.docs[index].reference.id}');
+                                                  prefs!
+                                                      .setStringList("fav", list);
+                                                } else {
+                                                  var list = prefs!
+                                                          .getStringList('fav') ??
+                                                      [];
+                                                  list.add(
+                                                      '${snapshot.data.docs[index].reference.id}');
+                                                  prefs!
+                                                      .setStringList("fav", list);
+                                                 
+                                                }
+                                            
+                                                setState(() {});
                                               },
-                                            ),
-                                          );
-                                        },
-                                        child: Stack(
-                                          children: [
-                                            // Positioned(
-                                            //   top: 18,
-                                            //   left: 16,
-                                            //   child: Icon(
-                                            //     Icons.favorite_border,
-                                            //     size: 18,
-                                            //     color: AppColors.DarkBlue,
-                                            //   ),
-                                            // ),
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 9, vertical: 8),
-                                              margin: EdgeInsets.only(
-                                                  top: 10, left: 7, right: 7),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                border: Border.all(
-                                                    color: Color.fromARGB(
-                                                        255, 197, 196, 196)),
+                                              child: Icon(
+                                                (prefs!
+                                                            .getStringList("fav")
+                                                            ?.contains(snapshot
+                                                                .data
+                                                                .docs[index]
+                                                                .reference
+                                                                .id) ??
+                                                        false)
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                size: 25,
+                                                color: AppColors.DarkBlue,
                                               ),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
+                                            ),
+                                          
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 9, vertical: 8),
+                                            margin: EdgeInsets.only(
+                                                top: 10, left: 7, right: 7),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: Border.all(
+                                                  color: Color.fromARGB(
+                                                      255, 197, 196, 196)),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                InkWell(
+                                                  onTap: () {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) {
+                                                          return ShowProduct(
+                                                            data: snapshot.data
+                                                                .docs[index]
+                                                                .data(),
+                                                          );
+                                                        },
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Expanded(
                                                     flex: 1,
                                                     child: Container(
                                                       margin:
                                                           EdgeInsets.all(10),
                                                       height: 100,
+                                                      width: 100,
                                                       decoration: BoxDecoration(
                                                         image: DecorationImage(
                                                             image: NetworkImage(
@@ -229,109 +266,108 @@ class _HomeState extends State<Home> {
                                                       ),
                                                     ),
                                                   ),
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(15),
-                                                      ),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                              '${snapshot.data.docs[index].data()['title']}',
-                                                              style: AppFonts
-                                                                  .DarkBLue_14,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis),
-                                                          SizedBox(
-                                                            height: 7,
-                                                          ),
-                                                          Text(
-                                                            '${snapshot.data.docs[index].data()['content']}',
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                    ),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                            '${snapshot.data.docs[index].data()['title']}',
+                                                            style: AppFonts
+                                                                .DarkBLue_14,
                                                             overflow:
                                                                 TextOverflow
-                                                                    .ellipsis,
-                                                            maxLines: 2,
-                                                            style: AppFonts
-                                                                .light_grey_12,
-                                                          ),
-                                                          Container(
-                                                            margin:
-                                                                EdgeInsets.only(
-                                                                    left: 20,
-                                                                    top: 20),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              children: [
-                                                                Row(
+                                                                    .ellipsis),
+                                                        SizedBox(
+                                                          height: 7,
+                                                        ),
+                                                        Text(
+                                                          '${snapshot.data.docs[index].data()['content']}',
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 2,
+                                                          style: AppFonts
+                                                              .light_grey_12,
+                                                        ),
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 20,
+                                                                  top: 20),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons
+                                                                        .timer_outlined,
+                                                                    color: AppColors
+                                                                        .DarkBlue,
+                                                                    size: 20,
+                                                                  ),
+                                                                  Text(
+                                                                    '${snapshot.data.docs[index].data()['date']}',
+                                                                    style: AppFonts
+                                                                        .DarkBLue_10,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              InkWell(
+                                                                onTap: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .push(
+                                                                          MaterialPageRoute(
+                                                                    builder:
+                                                                        (context) {
+                                                                      return ShowMap(
+                                                                          lat: double.parse(
+                                                                              '${snapshot.data.docs[index]['lat']}'),
+                                                                          long:
+                                                                              double.parse('${snapshot.data.docs[index]['long']}'));
+                                                                    },
+                                                                  ));
+                                                                },
+                                                                child: Row(
                                                                   children: [
                                                                     Icon(
                                                                       Icons
-                                                                          .timer_outlined,
+                                                                          .location_on,
                                                                       color: AppColors
                                                                           .DarkBlue,
                                                                       size: 20,
                                                                     ),
                                                                     Text(
-                                                                      '${snapshot.data.docs[index].data()['date']}',
+                                                                      'الموقع',
                                                                       style: AppFonts
                                                                           .DarkBLue_10,
                                                                     ),
                                                                   ],
                                                                 ),
-                                                                InkWell(
-                                                                  onTap: () {
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .push(
-                                                                            MaterialPageRoute(
-                                                                      builder:
-                                                                          (context) {
-                                                                        return ShowMap(
-                                                                            lat:
-                                                                                double.parse('${snapshot.data.docs[index]['lat']}'),
-                                                                            long: double.parse('${snapshot.data.docs[index]['long']}'));
-                                                                      },
-                                                                    ));
-                                                                  },
-                                                                  child: Row(
-                                                                    children: [
-                                                                      Icon(
-                                                                        Icons
-                                                                            .location_on,
-                                                                        color: AppColors
-                                                                            .DarkBlue,
-                                                                        size:
-                                                                            20,
-                                                                      ),
-                                                                      Text(
-                                                                        'الموقع',
-                                                                        style: AppFonts
-                                                                            .DarkBLue_10,
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        )
+                                                      ],
                                                     ),
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       );
                                     },
                                   )
